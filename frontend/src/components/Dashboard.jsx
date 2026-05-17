@@ -1,146 +1,227 @@
-import { useState } from 'react'
+import { ORDERS, SHIPMENTS, ACTIVITY } from '../data'
 
-const stats = [
-  { label: 'Total Orders',      value: '1,248', emoji: '📦', sub: '+12% this month',    accent: '#2563eb', light: '#eff6ff' },
-  { label: 'Active Shipments',  value: '89',    emoji: '🚚', sub: '3 added today',       accent: '#0891b2', light: '#ecfeff' },
-  { label: 'Delivered',         value: '1,094', emoji: '✅', sub: '87.7% success rate',  accent: '#059669', light: '#ecfdf5' },
-  { label: 'Pending',           value: '65',    emoji: '🔔', sub: 'Needs attention',     accent: '#d97706', light: '#fffbeb' },
+const STATS = [
+  {
+    label: 'Total Customers', value: '348', change: '+14 this month', up: true,
+    color: '#1e3a8a', bg: '#dbeafe',
+    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e3a8a" strokeWidth="1.8" strokeLinecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  },
+  {
+    label: 'Active Companies', value: '12', change: '2 pending setup', up: null,
+    color: '#1d4ed8', bg: '#eff6ff',
+    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" strokeWidth="1.8" strokeLinecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>,
+  },
+  {
+    label: 'Total Licenses', value: '1,094', change: '+38 this month', up: true,
+    color: '#1e40af', bg: '#bfdbfe',
+    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e40af" strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
+  },
+  {
+    label: 'Shipments / Month', value: '5,821', change: '+8.3% vs last month', up: true,
+    color: '#2563eb', bg: '#dbeafe',
+    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="1.8" strokeLinecap="round"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v3"/><polygon points="14,17 20,17 23,14 23,21 14,21"/><circle cx="7" cy="20" r="1"/><circle cx="17.5" cy="20" r="1"/></svg>,
+  },
 ]
 
-const recentOrders = [
-  { id: '#4521', customer: 'Sarah Cohen',    date: 'May 17',  status: 'Delivered',  total: '₪340' },
-  { id: '#4520', customer: 'David Levy',     date: 'May 17',  status: 'Shipped',    total: '₪125' },
-  { id: '#4519', customer: 'Maya Ben-David', date: 'May 16',  status: 'Processing', total: '₪890' },
-  { id: '#4518', customer: 'Roi Shapiro',    date: 'May 16',  status: 'Pending',    total: '₪67'  },
-  { id: '#4517', customer: 'Noa Friedman',   date: 'May 15',  status: 'Delivered',  total: '₪432' },
+const MONTHLY = [
+  { month: 'Dec', orders: 4200 },
+  { month: 'Jan', orders: 4800 },
+  { month: 'Feb', orders: 5200 },
+  { month: 'Mar', orders: 4700 },
+  { month: 'Apr', orders: 5500 },
+  { month: 'May', orders: 5821 },
 ]
+const MAX_ORDERS = Math.max(...MONTHLY.map(m => m.orders))
 
-const STATUS = {
-  Delivered:  { bg: '#d1fae5', color: '#065f46' },
-  Shipped:    { bg: '#ede9fe', color: '#4c1d95' },
-  Processing: { bg: '#dbeafe', color: '#1e40af' },
-  Pending:    { bg: '#fef3c7', color: '#92400e' },
+const STATUS_CLR = {
+  Delivered:  { bg: '#dbeafe', color: '#1e3a8a' },
+  Shipped:    { bg: '#bfdbfe', color: '#1e40af' },
+  Processing: { bg: '#eff6ff', color: '#2563eb' },
+  Pending:    { bg: '#dbeafe', color: '#1d4ed8' },
 }
 
-function StatusBadge({ status }) {
-  const c = STATUS[status] || {}
+function StatCard({ stat }) {
   return (
-    <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: c.bg, color: c.color }}>
-      {status}
-    </span>
-  )
-}
-
-export default function Dashboard({ setActivePage }) {
-  const [hoveredRow, setHoveredRow] = useState(null)
-
-  return (
-    <div style={s.page}>
-      {/* Header */}
-      <div style={s.header}>
-        <div>
-          <h1 style={s.title}>Good morning 👋</h1>
-          <p style={s.subtitle}>Here's what's happening with your shipments today.</p>
-        </div>
-        <button style={s.cta} onClick={() => setActivePage('orders')}>+ New Order</button>
+    <div className="stat-card" style={s.statCard}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+        <div style={{ ...s.iconBox, background: stat.bg }}>{stat.icon}</div>
+        {stat.up === true && (
+          <span style={s.upBadge}>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#1e3a8a" strokeWidth="2.5" strokeLinecap="round"><path d="m18 15-6-6-6 6"/></svg>
+            {stat.change.split(' ')[0]}
+          </span>
+        )}
       </div>
-
-      {/* Stats */}
-      <div style={s.statsGrid}>
-        {stats.map(st => (
-          <div key={st.label} style={s.statCard}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
-              <div style={{ ...s.emojiBox, background: st.light, color: st.accent }}>{st.emoji}</div>
-              <div style={{ ...s.dot, background: st.accent }} />
-            </div>
-            <div style={s.statVal}>{st.value}</div>
-            <div style={s.statLabel}>{st.label}</div>
-            <div style={s.statSub}>{st.sub}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Quick actions */}
-      <div style={s.quickRow}>
-        {[
-          { emoji: '🚚', label: 'Track Shipment', page: 'tracking' },
-          { emoji: '📦', label: 'View Orders',    page: 'orders'   },
-          { emoji: '✈️',  label: 'All Shipments',  page: 'shipments'},
-        ].map(a => (
-          <button key={a.label} style={s.quickBtn} onClick={() => setActivePage(a.page)}>
-            <span style={{ fontSize: 20 }}>{a.emoji}</span>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>{a.label}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Recent orders */}
-      <div style={s.card}>
-        <div style={s.cardHead}>
-          <h2 style={s.cardTitle}>Recent Orders</h2>
-          <button style={s.link} onClick={() => setActivePage('orders')}>View all →</button>
-        </div>
-        <table style={s.table}>
-          <thead>
-            <tr style={{ background: '#f8fafc' }}>
-              {['Order', 'Customer', 'Date', 'Status', 'Total'].map(h => (
-                <th key={h} style={s.th}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {recentOrders.map((o, i) => (
-              <tr
-                key={o.id}
-                style={{ background: hoveredRow === i ? '#f0f7ff' : i % 2 === 0 ? '#fff' : '#fafbfc', cursor: 'pointer', transition: 'background 0.12s' }}
-                onMouseEnter={() => setHoveredRow(i)}
-                onMouseLeave={() => setHoveredRow(null)}
-              >
-                <td style={s.td}><span style={s.ordId}>ORD-{o.id}</span></td>
-                <td style={s.td}>{o.customer}</td>
-                <td style={s.td}><span style={{ color: '#94a3b8', fontSize: 13 }}>{o.date}</span></td>
-                <td style={s.td}><StatusBadge status={o.status} /></td>
-                <td style={{ ...s.td, fontWeight: 700, color: '#0f172a' }}>{o.total}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div style={s.statNum}>{stat.value}</div>
+      <div style={s.statLabel}>{stat.label}</div>
+      <div style={{ ...s.statChange, color: stat.up === true ? '#1e40af' : stat.up === false ? '#1e3a8a' : '#3b82f6' }}>
+        {stat.change}
       </div>
     </div>
   )
 }
 
+export default function Dashboard({ navigate }) {
+  const recentOrders = ORDERS.slice(0, 6)
+  const recentActivity = ACTIVITY.slice(0, 7)
+
+  return (
+    <div>
+      <PageHeader title="Dashboard" sub="Good morning — platform overview for May 17, 2026" />
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 20, marginBottom: 28 }}>
+        {STATS.map(st => <StatCard key={st.label} stat={st} />)}
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 20, marginBottom: 20 }}>
+        <div style={s.card}>
+          <div style={s.cardHead}>
+            <div>
+              <div style={s.cardTitle}>Recent Orders</div>
+              <div style={s.cardSub}>Latest 6 orders across all platforms</div>
+            </div>
+            <button style={s.viewAll} onClick={() => navigate('orders')}>View all orders</button>
+          </div>
+          <table style={s.table}>
+            <thead>
+              <tr style={s.thead}>
+                {['Order', 'Customer', 'Source', 'Status', 'Total'].map(h => (
+                  <th key={h} style={s.th}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {recentOrders.map((o, i) => (
+                <tr key={i} className="trow" style={s.tr}>
+                  <td style={s.td}><code style={s.ordCode}>{o.id}</code></td>
+                  <td style={s.td}><span style={s.bold}>{o.customer}</span></td>
+                  <td style={s.td}><span style={s.muted}>{o.source}</span></td>
+                  <td style={s.td}>
+                    <span style={{ ...s.badge, ...STATUS_CLR[o.status] }}>{o.status}</span>
+                  </td>
+                  <td style={{ ...s.td, fontWeight: 700, color: '#000' }}>{o.total}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div style={s.card}>
+          <div style={s.cardHead}>
+            <div>
+              <div style={s.cardTitle}>Recent Activity</div>
+              <div style={s.cardSub}>Platform events</div>
+            </div>
+          </div>
+          <div>
+            {recentActivity.map((a, i) => (
+              <div key={i} style={s.actItem}>
+                <div style={s.actDot} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={s.actText}>{a.text}</div>
+                  <div style={s.actTime}>{a.time}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+        <div style={s.card}>
+          <div style={s.cardHead}>
+            <div>
+              <div style={s.cardTitle}>Monthly Orders</div>
+              <div style={s.cardSub}>Shipments per month — last 6 months</div>
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#000' }}>5,821</div>
+          </div>
+          <div style={{ padding: '20px 24px 8px' }}>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end', height: 130 }}>
+              {MONTHLY.map((m, i) => {
+                const barH = Math.round((m.orders / MAX_ORDERS) * 110)
+                const isLast = i === MONTHLY.length - 1
+                return (
+                  <div key={m.month} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                    <div style={{ fontSize: 11, color: isLast ? '#1e3a8a' : '#3b82f6', fontWeight: isLast ? 700 : 400 }}>
+                      {m.orders >= 1000 ? (m.orders / 1000).toFixed(1) + 'k' : m.orders}
+                    </div>
+                    <div style={{ width: '100%', height: barH, background: isLast ? '#1e3a8a' : '#bfdbfe', borderRadius: '5px 5px 0 0', minHeight: 4 }} />
+                    <div style={{ fontSize: 11, color: isLast ? '#1e3a8a' : '#3b82f6', fontWeight: isLast ? 700 : 500 }}>{m.month}</div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+
+        <div style={s.card}>
+          <div style={s.cardHead}>
+            <div>
+              <div style={s.cardTitle}>Active Shipments</div>
+              <div style={s.cardSub}>Currently in transit</div>
+            </div>
+            <button style={s.viewAll} onClick={() => navigate('shipments')}>View all</button>
+          </div>
+          <div style={{ padding: '0 0 4px' }}>
+            {SHIPMENTS.filter(sh => sh.status !== 'Delivered').slice(0, 5).map((sh, i) => (
+              <div key={i} style={s.shipItem}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <span style={s.bold}>{sh.customer}</span>
+                    <span style={{ fontSize: 12, color: '#3b82f6' }}>ETA {sh.eta}</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: '#3b82f6', marginBottom: 8 }}>{sh.from} to {sh.to}</div>
+                  <div style={{ height: 5, background: '#dbeafe', borderRadius: 3 }}>
+                    <div style={{ height: '100%', width: `${sh.progress}%`, background: '#2563eb', borderRadius: 3 }} />
+                  </div>
+                </div>
+                <div style={{ fontSize: 11, color: '#1e3a8a', fontWeight: 700, flexShrink: 0 }}>{sh.progress}%</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function PageHeader({ title, sub, action }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
+      <div>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: '#000', letterSpacing: '-0.4px', marginBottom: 4 }}>{title}</h1>
+        {sub && <p style={{ fontSize: 14, color: '#1d4ed8', fontWeight: 400 }}>{sub}</p>}
+      </div>
+      {action && <div style={{ flexShrink: 0, marginLeft: 24 }}>{action}</div>}
+    </div>
+  )
+}
+
 const s = {
-  page:      { padding: '40px 48px', maxWidth: 1080 },
-  header:    { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 },
-  title:     { fontSize: 26, fontWeight: 800, color: '#0f172a', marginBottom: 6 },
-  subtitle:  { color: '#64748b', fontSize: 14 },
-  cta: {
-    padding: '10px 22px', background: '#2563eb', color: '#fff',
-    border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700,
-    cursor: 'pointer', transition: 'background 0.15s',
-  },
-  statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 18, marginBottom: 24 },
-  statCard:  { background: '#fff', borderRadius: 16, padding: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: '1px solid #f1f5f9' },
-  emojiBox:  { width: 42, height: 42, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 },
-  dot:       { width: 8, height: 8, borderRadius: '50%', marginTop: 4 },
-  statVal:   { fontSize: 32, fontWeight: 800, color: '#0f172a', marginBottom: 4, lineHeight: 1 },
-  statLabel: { fontSize: 13, color: '#64748b', fontWeight: 500, marginBottom: 4 },
-  statSub:   { fontSize: 12, color: '#94a3b8' },
-  quickRow:  { display: 'flex', gap: 14, marginBottom: 24 },
-  quickBtn: {
-    display: 'flex', alignItems: 'center', gap: 10,
-    padding: '12px 20px', background: '#fff',
-    border: '1px solid #e2e8f0', borderRadius: 12,
-    cursor: 'pointer', transition: 'border-color 0.15s, box-shadow 0.15s',
-    boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
-  },
-  card:      { background: '#fff', borderRadius: 16, border: '1px solid #f1f5f9', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' },
-  cardHead:  { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 24px', borderBottom: '1px solid #f1f5f9' },
-  cardTitle: { fontSize: 15, fontWeight: 700, color: '#0f172a' },
-  link:      { background: 'none', border: 'none', color: '#2563eb', fontSize: 13, fontWeight: 600, cursor: 'pointer' },
-  table:     { width: '100%', borderCollapse: 'collapse' },
-  th:        { padding: '11px 24px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em' },
-  td:        { padding: '14px 24px', fontSize: 14, color: '#334155' },
-  ordId:     { fontFamily: 'monospace', fontSize: 13, color: '#2563eb', fontWeight: 700 },
+  statCard:   { background: '#fff', borderRadius: 12, padding: '22px 24px', border: '1px solid #bfdbfe', boxShadow: '0 1px 4px rgba(37,99,235,0.08)', cursor: 'default' },
+  iconBox:    { width: 44, height: 44, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  upBadge:    { display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 700, color: '#1e3a8a', background: '#dbeafe', padding: '3px 8px', borderRadius: 6 },
+  statNum:    { fontSize: 36, fontWeight: 800, color: '#000', lineHeight: 1, marginBottom: 4, letterSpacing: '-1px' },
+  statLabel:  { fontSize: 13, fontWeight: 600, color: '#000', marginBottom: 4 },
+  statChange: { fontSize: 12, fontWeight: 500 },
+  card:       { background: '#fff', borderRadius: 12, border: '1px solid #bfdbfe', overflow: 'hidden', boxShadow: '0 1px 4px rgba(37,99,235,0.08)' },
+  cardHead:   { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 24px', borderBottom: '1px solid #dbeafe' },
+  cardTitle:  { fontSize: 15, fontWeight: 700, color: '#000' },
+  cardSub:    { fontSize: 12, color: '#3b82f6', marginTop: 2 },
+  viewAll:    { background: 'none', border: 'none', fontSize: 13, color: '#2563eb', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' },
+  table:      { width: '100%', borderCollapse: 'collapse' },
+  thead:      { background: '#eff6ff' },
+  th:         { padding: '10px 24px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#1d4ed8', textTransform: 'uppercase', letterSpacing: '0.06em' },
+  tr:         { borderTop: '1px solid #dbeafe' },
+  td:         { padding: '14px 24px', verticalAlign: 'middle', fontSize: 14 },
+  bold:       { fontWeight: 600, color: '#000' },
+  muted:      { color: '#1d4ed8' },
+  ordCode:    { fontFamily: 'monospace', fontSize: 12, fontWeight: 700, color: '#1e3a8a', background: '#dbeafe', padding: '3px 8px', borderRadius: 5 },
+  badge:      { display: 'inline-block', fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 5 },
+  actItem:    { display: 'flex', gap: 14, padding: '14px 24px', borderTop: '1px solid #eff6ff', alignItems: 'flex-start' },
+  actDot:     { width: 8, height: 8, borderRadius: '50%', background: '#2563eb', marginTop: 5, flexShrink: 0 },
+  actText:    { fontSize: 13, color: '#000', lineHeight: 1.5 },
+  actTime:    { fontSize: 11, color: '#3b82f6', marginTop: 3 },
+  shipItem:   { display: 'flex', gap: 14, padding: '14px 24px', borderTop: '1px solid #eff6ff', alignItems: 'center' },
 }

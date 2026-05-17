@@ -1,258 +1,277 @@
 import { useState } from 'react'
+import { PageHeader } from './Dashboard'
 
-function Toggle({ value, onChange, label, sub }) {
+const TABS = [
+  { id: 'account',       label: 'Account'       },
+  { id: 'notifications', label: 'Notifications' },
+  { id: 'security',      label: 'Security'       },
+  { id: 'appearance',    label: 'Appearance'     },
+]
+
+function Field({ label, hint, children }) {
+  return (
+    <div style={s.field}>
+      <label style={s.label}>{label}</label>
+      {children}
+      {hint && <div style={s.hint}>{hint}</div>}
+    </div>
+  )
+}
+
+function Input({ value, onChange, type = 'text', placeholder, disabled }) {
+  return (
+    <input
+      style={{ ...s.input, ...(disabled ? { background: '#eff6ff', color: '#3b82f6' } : {}) }}
+      type={type} value={value} onChange={onChange}
+      placeholder={placeholder} disabled={disabled}
+    />
+  )
+}
+
+function Toggle({ on, onChange, label, sub }) {
   return (
     <div style={s.toggleRow}>
-      <div>
+      <div style={{ flex: 1 }}>
         <div style={s.toggleLabel}>{label}</div>
         {sub && <div style={s.toggleSub}>{sub}</div>}
       </div>
-      <button
-        style={{ ...s.toggleBtn, ...(value ? s.toggleOn : s.toggleOff) }}
-        onClick={() => onChange(!value)}
-        title={value ? 'Turn off' : 'Turn on'}
-      >
-        <div style={{ ...s.toggleThumb, ...(value ? s.thumbOn : {}) }} />
+      <button className="toggle-track" onClick={() => onChange(!on)}
+        style={{ ...s.track, background: on ? '#2563eb' : '#bfdbfe' }}>
+        <div className="toggle-thumb" style={{ ...s.thumb, transform: on ? 'translateX(20px)' : 'translateX(2px)' }} />
       </button>
     </div>
   )
 }
 
-function Section({ title, sub, children }) {
-  return (
-    <div style={s.section}>
-      <div style={s.sectionHead}>
-        <h3 style={s.sectionTitle}>{title}</h3>
-        {sub && <p style={s.sectionSub}>{sub}</p>}
-      </div>
-      <div style={s.sectionBody}>{children}</div>
-    </div>
-  )
-}
-
 export default function Settings() {
-  const [form, setForm] = useState({
-    name: 'Admin User', email: 'admin@shipos.co.il',
-    phone: '+972 50 123 4567', company: 'Shipos Ltd.',
-    locale: 'he', timezone: 'Asia/Jerusalem',
+  const [tab, setTab]       = useState('account')
+  const [saved, setSaved]   = useState(false)
+  const [form, setForm]     = useState({
+    name: 'Amit Matat', email: 'amit@matat.co.il',
+    phone: '+972 50 000 0000', company: 'Matat Ltd.',
+    role: 'Super Admin', lang: 'Hebrew (עברית)', tz: 'Asia/Jerusalem (GMT+3)',
   })
   const [notifs, setNotifs] = useState({
-    orderCreated: true, shipmentUpdate: true,
-    deliveryConfirm: true, weeklyReport: false, sms: false,
+    newCustomer: true, licenseExpiry: true, systemAlert: true,
+    weeklyReport: false, dailyDigest: true, apiErrors: true,
   })
-  const [saved, setSaved] = useState(false)
-  const [tab, setTab] = useState('profile')
+  const [passwords, setPasswords] = useState({ current: '', newPass: '', confirm: '' })
 
-  const save = () => {
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2500)
-  }
+  const set  = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
+  const setN = k => v => setNotifs(n => ({ ...n, [k]: v }))
+  const setP = k => e => setPasswords(p => ({ ...p, [k]: e.target.value }))
 
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
-  const setN = (k, v) => setNotifs(n => ({ ...n, [k]: v }))
-
-  const tabs = ['profile', 'notifications', 'security']
+  const save = () => { setSaved(true); setTimeout(() => setSaved(false), 3000) }
 
   return (
-    <div style={s.page}>
-      <div style={s.header}>
-        <div>
-          <h1 style={s.title}>Settings ⚙️</h1>
-          <p style={s.subtitle}>Manage your account and preferences.</p>
-        </div>
-      </div>
+    <div style={{ maxWidth: 860 }}>
+      <PageHeader title="Settings" sub="Manage your admin account, preferences, and security." />
 
-      {/* Tabs */}
       <div style={s.tabs}>
-        {tabs.map(t => (
-          <button
-            key={t}
-            style={{ ...s.tabBtn, ...(tab === t ? s.tabActive : {}) }}
-            onClick={() => setTab(t)}
-          >
-            {t.charAt(0).toUpperCase() + t.slice(1)}
+        {TABS.map(t => (
+          <button key={t.id} className="tab-btn"
+            style={{ ...s.tabBtn, ...(tab === t.id ? s.tabActive : {}) }}
+            onClick={() => setTab(t.id)}>
+            {t.label}
           </button>
         ))}
       </div>
 
-      {tab === 'profile' && (
-        <div>
-          {/* Avatar */}
-          <div style={s.avatarCard}>
-            <div style={s.avatarCircle}>👤</div>
-            <div>
-              <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: 2 }}>{form.name}</div>
-              <div style={{ color: '#64748b', fontSize: 13, marginBottom: 12 }}>{form.email}</div>
-              <button style={s.uploadBtn}>Change photo</button>
+      {tab === 'account' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div style={s.section}>
+            <div style={s.sHead}>
+              <div style={s.sTitle}>Profile</div>
+              <div style={s.sSub}>Your personal and contact information</div>
+            </div>
+            <div style={s.sBody}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 28 }}>
+                <div style={s.profileAvatar}>A</div>
+                <div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: '#000', marginBottom: 4 }}>Amit Matat</div>
+                  <div style={{ fontSize: 13, color: '#3b82f6', marginBottom: 10 }}>amit@matat.co.il · Super Admin</div>
+                  <button className="btn-ghost" style={s.smallBtn}>Change Photo</button>
+                </div>
+              </div>
+              <div style={s.grid2}>
+                <Field label="Full Name"><Input value={form.name} onChange={set('name')} /></Field>
+                <Field label="Email Address"><Input type="email" value={form.email} onChange={set('email')} /></Field>
+                <Field label="Phone"><Input value={form.phone} onChange={set('phone')} /></Field>
+                <Field label="Company"><Input value={form.company} onChange={set('company')} /></Field>
+              </div>
             </div>
           </div>
 
-          <Section title="Personal Information" sub="Update your name, email and contact details.">
-            <div style={s.formGrid}>
-              <div style={s.field}>
-                <label style={s.label}>Full Name</label>
-                <input style={s.input} value={form.name} onChange={e => set('name', e.target.value)} />
-              </div>
-              <div style={s.field}>
-                <label style={s.label}>Email Address</label>
-                <input style={s.input} type="email" value={form.email} onChange={e => set('email', e.target.value)} />
-              </div>
-              <div style={s.field}>
-                <label style={s.label}>Phone Number</label>
-                <input style={s.input} value={form.phone} onChange={e => set('phone', e.target.value)} />
-              </div>
-              <div style={s.field}>
-                <label style={s.label}>Company</label>
-                <input style={s.input} value={form.company} onChange={e => set('company', e.target.value)} />
+          <div style={s.section}>
+            <div style={s.sHead}>
+              <div style={s.sTitle}>Preferences</div>
+              <div style={s.sSub}>Language and regional settings</div>
+            </div>
+            <div style={s.sBody}>
+              <div style={s.grid2}>
+                <Field label="Language">
+                  <select style={s.input} value={form.lang} onChange={set('lang')}>
+                    <option>Hebrew (עברית)</option>
+                    <option>English</option>
+                  </select>
+                </Field>
+                <Field label="Timezone">
+                  <select style={s.input} value={form.tz} onChange={set('tz')}>
+                    <option>Asia/Jerusalem (GMT+3)</option>
+                    <option>Europe/London (GMT+1)</option>
+                    <option>America/New_York (GMT-5)</option>
+                  </select>
+                </Field>
               </div>
             </div>
-          </Section>
+          </div>
 
-          <Section title="Preferences">
-            <div style={s.formGrid}>
-              <div style={s.field}>
-                <label style={s.label}>Language</label>
-                <select style={s.input} value={form.locale} onChange={e => set('locale', e.target.value)}>
-                  <option value="he">Hebrew (עברית)</option>
-                  <option value="en">English</option>
-                  <option value="ar">Arabic (عربي)</option>
-                </select>
-              </div>
-              <div style={s.field}>
-                <label style={s.label}>Timezone</label>
-                <select style={s.input} value={form.timezone} onChange={e => set('timezone', e.target.value)}>
-                  <option value="Asia/Jerusalem">Asia/Jerusalem (GMT+3)</option>
-                  <option value="Europe/London">Europe/London (GMT+1)</option>
-                  <option value="America/New_York">America/New_York (GMT-4)</option>
-                </select>
-              </div>
+          <div style={s.section}>
+            <div style={s.sHead}>
+              <div style={s.sTitle}>Account Role</div>
+              <div style={s.sSub}>Your access level on this platform</div>
             </div>
-          </Section>
+            <div style={s.sBody}>
+              <Field label="Role" hint="Contact a super admin to change your role.">
+                <Input value={form.role} disabled />
+              </Field>
+            </div>
+          </div>
         </div>
       )}
 
       {tab === 'notifications' && (
-        <Section title="Notification Preferences" sub="Choose when and how you want to be notified.">
-          <Toggle value={notifs.orderCreated}    onChange={v => setN('orderCreated', v)}    label="New Order"           sub="Get notified when a new order is placed" />
-          <Toggle value={notifs.shipmentUpdate}  onChange={v => setN('shipmentUpdate', v)}  label="Shipment Updates"    sub="Status changes for active shipments" />
-          <Toggle value={notifs.deliveryConfirm} onChange={v => setN('deliveryConfirm', v)} label="Delivery Confirmed"  sub="Alert when a package is successfully delivered" />
-          <Toggle value={notifs.weeklyReport}    onChange={v => setN('weeklyReport', v)}    label="Weekly Summary"      sub="Receive a weekly performance report by email" />
-          <Toggle value={notifs.sms}             onChange={v => setN('sms', v)}             label="SMS Alerts"          sub="Get critical alerts via SMS" />
-        </Section>
+        <div style={s.section}>
+          <div style={s.sHead}>
+            <div style={s.sTitle}>Notification Preferences</div>
+            <div style={s.sSub}>Choose which events send you email notifications</div>
+          </div>
+          <div style={s.sBody}>
+            <Toggle on={notifs.newCustomer}   onChange={setN('newCustomer')}   label="New customer registered"   sub="Email when a new customer signs up" />
+            <Toggle on={notifs.licenseExpiry} onChange={setN('licenseExpiry')} label="License expiring soon"     sub="Alert 7 days before any license expires" />
+            <Toggle on={notifs.systemAlert}   onChange={setN('systemAlert')}   label="System alerts"             sub="Critical platform errors and infrastructure notifications" />
+            <Toggle on={notifs.weeklyReport}  onChange={setN('weeklyReport')}  label="Weekly summary report"     sub="Email every Monday with platform usage overview" />
+            <Toggle on={notifs.dailyDigest}   onChange={setN('dailyDigest')}   label="Daily orders digest"       sub="Daily email with previous day's order counts and revenue" />
+            <Toggle on={notifs.apiErrors}     onChange={setN('apiErrors')}     label="API and webhook errors"    sub="Alert when WooCommerce, Wix, or Shopify sync fails" />
+          </div>
+        </div>
       )}
 
       {tab === 'security' && (
-        <Section title="Security" sub="Manage your password and session settings.">
-          <div style={s.field}>
-            <label style={s.label}>Current Password</label>
-            <input style={s.input} type="password" placeholder="••••••••" />
-          </div>
-          <div style={s.formGrid}>
-            <div style={s.field}>
-              <label style={s.label}>New Password</label>
-              <input style={s.input} type="password" placeholder="••••••••" />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div style={s.section}>
+            <div style={s.sHead}>
+              <div style={s.sTitle}>Change Password</div>
+              <div style={s.sSub}>Use a strong password of at least 8 characters</div>
             </div>
-            <div style={s.field}>
-              <label style={s.label}>Confirm New Password</label>
-              <input style={s.input} type="password" placeholder="••••••••" />
+            <div style={s.sBody}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 18, maxWidth: 440 }}>
+                <Field label="Current Password"><Input type="password" value={passwords.current} onChange={setP('current')} placeholder="Enter current password" /></Field>
+                <Field label="New Password"><Input type="password" value={passwords.newPass} onChange={setP('newPass')} placeholder="Enter new password" /></Field>
+                <Field label="Confirm New Password"><Input type="password" value={passwords.confirm} onChange={setP('confirm')} placeholder="Repeat new password" /></Field>
+              </div>
             </div>
           </div>
-          <div style={{ ...s.infoBox, marginTop: 8 }}>
-            🔒 Use at least 8 characters with a mix of letters and numbers.
+
+          <div style={s.section}>
+            <div style={s.sHead}>
+              <div style={s.sTitle}>Active Sessions</div>
+              <div style={s.sSub}>Manage where you are signed in</div>
+            </div>
+            <div style={s.sBody}>
+              {[
+                { device: 'Chrome on macOS',  ip: '82.80.xx.xx', location: 'Tel Aviv, IL', active: true  },
+                { device: 'Safari on iPhone', ip: '82.80.xx.xx', location: 'Tel Aviv, IL', active: false },
+              ].map((sess, i) => (
+                <div key={i} style={s.sessRow}>
+                  <div>
+                    <div style={{ fontWeight: 600, color: '#000', fontSize: 14 }}>
+                      {sess.device}
+                      {sess.active && <span style={s.activeTag}>Current</span>}
+                    </div>
+                    <div style={{ fontSize: 12, color: '#3b82f6', marginTop: 3 }}>{sess.ip} · {sess.location}</div>
+                  </div>
+                  {!sess.active && (
+                    <button className="btn-ghost" style={{ ...s.smallBtn, color: '#1e3a8a', borderColor: '#93c5fd', fontWeight: 700 }}>
+                      Revoke
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
-        </Section>
+        </div>
       )}
 
-      {/* Save bar */}
+      {tab === 'appearance' && (
+        <div style={s.section}>
+          <div style={s.sHead}>
+            <div style={s.sTitle}>Appearance</div>
+            <div style={s.sSub}>Visual preferences for the admin panel</div>
+          </div>
+          <div style={s.sBody}>
+            <Field label="Color Theme">
+              <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
+                {['Navy Blue', 'Mid Blue', 'Deep Blue'].map((theme, i) => (
+                  <button key={theme} className="btn-ghost"
+                    style={{ ...s.themeBtn, ...(i === 0 ? s.themeBtnActive : {}) }}>
+                    <div style={{ width: 20, height: 20, borderRadius: 5, background: ['#1e3a8a','#2563eb','#1d4ed8'][i], marginBottom: 6 }} />
+                    {theme}
+                  </button>
+                ))}
+              </div>
+            </Field>
+            <div style={{ marginTop: 20 }}>
+              <Toggle on={true}  onChange={() => {}} label="Compact table rows"            sub="Show more data with reduced row height" />
+              <Toggle on={false} onChange={() => {}} label="Show revenue in dashboard"     sub="Display financial metrics on the main dashboard" />
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={s.saveBar}>
-        {saved && <span style={s.savedMsg}>✅ Changes saved successfully</span>}
-        <button style={s.saveBtn} onClick={save}>
-          {saved ? 'Saved!' : 'Save Changes'}
-        </button>
+        {saved && (
+          <div style={s.savedMsg}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e3a8a" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Changes saved successfully.
+          </div>
+        )}
+        <div style={{ display: 'flex', gap: 10, marginLeft: 'auto' }}>
+          <button className="btn-ghost" style={s.cancelBtn}>Cancel</button>
+          <button className="btn-primary" style={s.saveBtn} onClick={save}>Save Changes</button>
+        </div>
       </div>
     </div>
   )
 }
 
 const s = {
-  page:     { padding: '40px 48px', maxWidth: 760 },
-  header:   { marginBottom: 28 },
-  title:    { fontSize: 26, fontWeight: 800, color: '#0f172a', marginBottom: 4 },
-  subtitle: { color: '#64748b', fontSize: 14 },
-
-  tabs: { display: 'flex', gap: 4, marginBottom: 28, borderBottom: '1px solid #f1f5f9', paddingBottom: 0 },
-  tabBtn: {
-    padding: '9px 18px', background: 'none', border: 'none',
-    fontSize: 14, fontWeight: 500, color: '#64748b', cursor: 'pointer',
-    borderBottom: '2px solid transparent', marginBottom: -1, transition: 'all 0.12s',
-  },
-  tabActive: { color: '#2563eb', borderBottomColor: '#2563eb', fontWeight: 700 },
-
-  avatarCard: {
-    display: 'flex', alignItems: 'center', gap: 20,
-    background: '#fff', borderRadius: 16, padding: '20px 24px',
-    border: '1px solid #f1f5f9', marginBottom: 20,
-    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-  },
-  avatarCircle: {
-    width: 64, height: 64, borderRadius: '50%',
-    background: '#eff6ff', fontSize: 28,
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    border: '3px solid #bfdbfe', flexShrink: 0,
-  },
-  uploadBtn: {
-    padding: '6px 14px', background: '#f1f5f9', border: '1px solid #e2e8f0',
-    borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#334155', cursor: 'pointer',
-  },
-
-  section:     { background: '#fff', borderRadius: 16, border: '1px solid #f1f5f9', overflow: 'hidden', marginBottom: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
-  sectionHead: { padding: '18px 24px', borderBottom: '1px solid #f8fafc' },
-  sectionTitle:{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 2 },
-  sectionSub:  { fontSize: 13, color: '#64748b' },
-  sectionBody: { padding: '20px 24px' },
-
-  formGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 },
-  field:    { display: 'flex', flexDirection: 'column', gap: 6 },
-  label:    { fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' },
-  input: {
-    padding: '10px 14px', border: '1px solid #e2e8f0', borderRadius: 10,
-    fontSize: 14, color: '#0f172a', outline: 'none',
-    transition: 'border-color 0.15s', background: '#fff',
-  },
-
-  toggleRow: {
-    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    padding: '14px 0', borderBottom: '1px solid #f8fafc',
-  },
-  toggleLabel: { fontSize: 14, fontWeight: 600, color: '#0f172a', marginBottom: 2 },
-  toggleSub:   { fontSize: 12, color: '#94a3b8' },
-  toggleBtn: {
-    width: 44, height: 24, borderRadius: 12, border: 'none',
-    cursor: 'pointer', position: 'relative', transition: 'background 0.2s', flexShrink: 0,
-  },
-  toggleOn:  { background: '#2563eb' },
-  toggleOff: { background: '#e2e8f0' },
-  toggleThumb: {
-    position: 'absolute', top: 2, left: 2,
-    width: 20, height: 20, borderRadius: '50%',
-    background: '#fff', transition: 'left 0.2s',
-    boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
-  },
-  thumbOn: { left: 22 },
-
-  infoBox: {
-    fontSize: 13, color: '#64748b', background: '#f8fafc',
-    padding: '12px 16px', borderRadius: 10, border: '1px solid #f1f5f9',
-  },
-
-  saveBar: {
-    display: 'flex', justifyContent: 'flex-end', alignItems: 'center',
-    gap: 16, paddingTop: 8,
-  },
-  savedMsg: { fontSize: 14, color: '#059669', fontWeight: 600 },
-  saveBtn: {
-    padding: '11px 28px', background: '#2563eb', color: '#fff',
-    border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700,
-    cursor: 'pointer', transition: 'background 0.15s',
-  },
+  tabs:          { display: 'flex', gap: 2, borderBottom: '1px solid #bfdbfe', marginBottom: 24 },
+  tabBtn:        { padding: '10px 18px', background: 'none', border: 'none', fontSize: 14, fontWeight: 500, color: '#3b82f6', cursor: 'pointer', borderBottom: '2px solid transparent', marginBottom: -1 },
+  tabActive:     { color: '#000', fontWeight: 700, borderBottomColor: '#2563eb', background: 'none' },
+  section:       { background: '#fff', border: '1px solid #bfdbfe', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px rgba(37,99,235,0.08)' },
+  sHead:         { padding: '18px 24px', borderBottom: '1px solid #dbeafe' },
+  sTitle:        { fontSize: 15, fontWeight: 700, color: '#000' },
+  sSub:          { fontSize: 13, color: '#3b82f6', marginTop: 3 },
+  sBody:         { padding: '24px' },
+  profileAvatar: { width: 64, height: 64, borderRadius: '50%', background: '#2563eb', color: '#fff', fontSize: 22, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  grid2:         { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 },
+  field:         { display: 'flex', flexDirection: 'column', gap: 7 },
+  label:         { fontSize: 12, fontWeight: 700, color: '#1d4ed8', textTransform: 'uppercase', letterSpacing: '0.05em' },
+  hint:          { fontSize: 12, color: '#3b82f6', marginTop: 2 },
+  input:         { padding: '10px 14px', border: '1px solid #bfdbfe', borderRadius: 8, fontSize: 14, color: '#000', outline: 'none', background: '#fff', width: '100%' },
+  smallBtn:      { padding: '6px 14px', border: '1px solid #bfdbfe', background: '#fff', borderRadius: 7, fontSize: 13, fontWeight: 500, color: '#000', cursor: 'pointer' },
+  toggleRow:     { display: 'flex', alignItems: 'center', gap: 16, padding: '16px 0', borderBottom: '1px solid #eff6ff' },
+  toggleLabel:   { fontSize: 14, fontWeight: 600, color: '#000' },
+  toggleSub:     { fontSize: 13, color: '#3b82f6', marginTop: 3 },
+  track:         { width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', position: 'relative', flexShrink: 0 },
+  thumb:         { position: 'absolute', top: 3, width: 18, height: 18, borderRadius: '50%', background: '#fff', boxShadow: '0 1px 4px rgba(30,58,138,0.3)' },
+  sessRow:       { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: '1px solid #eff6ff' },
+  activeTag:     { display: 'inline-block', marginLeft: 8, fontSize: 11, fontWeight: 700, color: '#1e3a8a', background: '#dbeafe', padding: '2px 8px', borderRadius: 5 },
+  themeBtn:      { display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '12px 18px', border: '1px solid #bfdbfe', borderRadius: 9, background: '#fff', cursor: 'pointer', fontSize: 13, color: '#000', fontWeight: 500 },
+  themeBtnActive:{ border: '2px solid #2563eb', color: '#1e3a8a', fontWeight: 700 },
+  saveBar:       { display: 'flex', alignItems: 'center', marginTop: 28, paddingTop: 20, borderTop: '1px solid #bfdbfe' },
+  savedMsg:      { display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: '#1e3a8a', fontWeight: 600 },
+  cancelBtn:     { padding: '10px 20px', border: '1px solid #bfdbfe', background: '#fff', borderRadius: 8, fontSize: 14, fontWeight: 600, color: '#000', cursor: 'pointer' },
+  saveBtn:       { padding: '10px 24px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: 'pointer' },
 }

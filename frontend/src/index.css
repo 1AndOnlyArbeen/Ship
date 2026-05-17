@@ -1,22 +1,46 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
 
-*, *::before, *::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #f1f4f8;
-  color: #1e293b;
+  background: #f4f4f5;
+  color: #111827;
   -webkit-font-smoothing: antialiased;
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 1.5;
 }
 
 button { font-family: inherit; cursor: pointer; }
-input, select, textarea { font-family: inherit; }
+input, select, textarea { font-family: inherit; font-size: 14px; }
 
-::-webkit-scrollbar { width: 4px; height: 4px; }
+.trow:hover { background: #f9fafb !important; }
+.nav-link:hover { color: #e5e7eb !important; }
+
+input:focus, select:focus, textarea:focus {
+  outline: none !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.12) !important;
+}
+
+.btn-ghost:hover   { background: #f3f4f6 !important; }
+.btn-danger:hover  { background: #fef2f2 !important; color: #dc2626 !important; border-color: #fca5a5 !important; }
+.btn-primary:hover { background: #1d4ed8 !important; }
+.btn-dark:hover    { background: #1f2937 !important; }
+
+.search-result:hover { background: #f9fafb !important; }
+.drop-item:hover     { background: #f9fafb !important; }
+.search-input::placeholder { color: rgba(255,255,255,0.35); }
+
+.tab-btn:hover { background: #f3f4f6 !important; color: #374151 !important; }
+.stat-card { transition: box-shadow 0.15s, transform 0.15s; }
+.stat-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.14) !important; transform: translateY(-1px); }
+.toggle-track { transition: background 0.2s; }
+.toggle-thumb { transition: transform 0.2s; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+
+button { transition: background 0.12s, color 0.12s, border-color 0.12s; }
+input, select { transition: border-color 0.12s, box-shadow 0.12s; }
