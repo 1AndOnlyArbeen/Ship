@@ -1,0 +1,40 @@
+const mongoose = require('mongoose');
+const { Schema, Types } = mongoose;
+
+const licenseSettingsSchema = new Schema({
+  license_id:                                           { type: Types.ObjectId, ref: 'License', required: true },
+  provider_id:                                          { type: Types.ObjectId, ref: 'Provider' },
+  settings:                                             { type: Schema.Types.Mixed },
+  collect_street:                                       { type: String },
+  collect_street_number:                                { type: String },
+  collect_city:                                         { type: String },
+  collect_company:                                      { type: String },
+  print_products:                                       { type: Boolean, default: true },
+  print_variations:                                     { type: Boolean, default: false },
+  print_products_on_label_notes:                        { type: Boolean, default: false },
+  print_products_on_a4_label_notes:                     { type: Boolean, default: false },
+  print_products_name:                                  { type: Boolean, default: false },
+  print_products_sku:                                   { type: Boolean, default: false },
+  print_products_name_sku_on_label_notes:               { type: Boolean, default: false },
+  print_customer_detail_sku_and_quantity_bold_in_label: { type: Boolean, default: false },
+  print_send_virtual_product_on_note:                   { type: Boolean, default: false },
+  enable_cod:                                           { type: Boolean, default: false },
+  send_notes_to_order:                                  { type: Boolean, default: false },
+  display_shipping_line_number:                         { type: Boolean, default: false },
+  separate_street_and_number:                           { type: Boolean, default: false },
+  get_street_number_with_suffix:                        { type: Boolean, default: false },
+  allow_activate_pickup_point:                          { type: Boolean, default: false },
+  allow_order_status_filter_for_shipment:               { type: Boolean, default: false },
+  blocked_order_statuses_for_shipment_creation:         { type: [String], default: [] },
+  order_prefix:                                         { type: String },
+  send_to_printer_after:                                { type: String },
+  printer_id:                                           { type: String },
+  printer_api_key:                                      { type: String },
+  printer_rotation:                                     { type: Number, default: 0 },
+  printer_fit_to_page:                                  { type: Boolean, default: false },
+  printer_paper_size:                                   { type: String },
+  shopify_tag_on_status:                                { type: String },
+  shopify_tag_on_delivered:                             { type: String },
+}, { timestamps: true });
+
+module.exports = mongoose.model('LicenseSettings', licenseSettingsSchema);
