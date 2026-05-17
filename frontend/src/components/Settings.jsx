@@ -21,7 +21,7 @@ function Field({ label, hint, children }) {
 function Input({ value, onChange, type = 'text', placeholder, disabled }) {
   return (
     <input
-      style={{ ...s.input, ...(disabled ? { background: '#eff6ff', color: '#3b82f6' } : {}) }}
+      style={{ ...s.input, ...(disabled ? { background: '#fafafa', color: '#aaa' } : {}) }}
       type={type} value={value} onChange={onChange}
       placeholder={placeholder} disabled={disabled}
     />
@@ -36,7 +36,7 @@ function Toggle({ on, onChange, label, sub }) {
         {sub && <div style={s.toggleSub}>{sub}</div>}
       </div>
       <button className="toggle-track" onClick={() => onChange(!on)}
-        style={{ ...s.track, background: on ? '#2563eb' : '#bfdbfe' }}>
+        style={{ ...s.track, background: on ? '#2563eb' : '#d1d5db' }}>
         <div className="toggle-thumb" style={{ ...s.thumb, transform: on ? 'translateX(20px)' : 'translateX(2px)' }} />
       </button>
     </div>
@@ -44,9 +44,9 @@ function Toggle({ on, onChange, label, sub }) {
 }
 
 export default function Settings() {
-  const [tab, setTab]       = useState('account')
-  const [saved, setSaved]   = useState(false)
-  const [form, setForm]     = useState({
+  const [tab,   setTab]   = useState('account')
+  const [saved, setSaved] = useState(false)
+  const [form,  setForm]  = useState({
     name: 'Amit Matat', email: 'amit@matat.co.il',
     phone: '+972 50 000 0000', company: 'Matat Ltd.',
     role: 'Super Admin', lang: 'Hebrew (עברית)', tz: 'Asia/Jerusalem (GMT+3)',
@@ -64,7 +64,7 @@ export default function Settings() {
   const save = () => { setSaved(true); setTimeout(() => setSaved(false), 3000) }
 
   return (
-    <div style={{ maxWidth: 860 }}>
+    <div style={{ maxWidth: 820 }}>
       <PageHeader title="Settings" sub="Manage your admin account, preferences, and security." />
 
       <div style={s.tabs}>
@@ -78,18 +78,18 @@ export default function Settings() {
       </div>
 
       {tab === 'account' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={s.section}>
             <div style={s.sHead}>
               <div style={s.sTitle}>Profile</div>
               <div style={s.sSub}>Your personal and contact information</div>
             </div>
             <div style={s.sBody}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 28 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 24 }}>
                 <div style={s.profileAvatar}>A</div>
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: '#000', marginBottom: 4 }}>Amit Matat</div>
-                  <div style={{ fontSize: 13, color: '#3b82f6', marginBottom: 10 }}>amit@matat.co.il · Super Admin</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#111', marginBottom: 3 }}>Amit Matat</div>
+                  <div style={{ fontSize: 13, color: '#888', marginBottom: 10 }}>amit@matat.co.il · Super Admin</div>
                   <button className="btn-ghost" style={s.smallBtn}>Change Photo</button>
                 </div>
               </div>
@@ -158,14 +158,14 @@ export default function Settings() {
       )}
 
       {tab === 'security' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={s.section}>
             <div style={s.sHead}>
               <div style={s.sTitle}>Change Password</div>
               <div style={s.sSub}>Use a strong password of at least 8 characters</div>
             </div>
             <div style={s.sBody}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 18, maxWidth: 440 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 420 }}>
                 <Field label="Current Password"><Input type="password" value={passwords.current} onChange={setP('current')} placeholder="Enter current password" /></Field>
                 <Field label="New Password"><Input type="password" value={passwords.newPass} onChange={setP('newPass')} placeholder="Enter new password" /></Field>
                 <Field label="Confirm New Password"><Input type="password" value={passwords.confirm} onChange={setP('confirm')} placeholder="Repeat new password" /></Field>
@@ -185,14 +185,14 @@ export default function Settings() {
               ].map((sess, i) => (
                 <div key={i} style={s.sessRow}>
                   <div>
-                    <div style={{ fontWeight: 600, color: '#000', fontSize: 14 }}>
+                    <div style={{ fontWeight: 600, color: '#111', fontSize: 14 }}>
                       {sess.device}
                       {sess.active && <span style={s.activeTag}>Current</span>}
                     </div>
-                    <div style={{ fontSize: 12, color: '#3b82f6', marginTop: 3 }}>{sess.ip} · {sess.location}</div>
+                    <div style={{ fontSize: 12, color: '#aaa', marginTop: 3 }}>{sess.ip} · {sess.location}</div>
                   </div>
                   {!sess.active && (
-                    <button className="btn-ghost" style={{ ...s.smallBtn, color: '#1e3a8a', borderColor: '#93c5fd', fontWeight: 700 }}>
+                    <button className="btn-danger" style={{ ...s.smallBtn, color: '#dc2626', borderColor: '#fca5a5', fontWeight: 700 }}>
                       Revoke
                     </button>
                   )}
@@ -211,19 +211,19 @@ export default function Settings() {
           </div>
           <div style={s.sBody}>
             <Field label="Color Theme">
-              <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
+              <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
                 {['Navy Blue', 'Mid Blue', 'Deep Blue'].map((theme, i) => (
                   <button key={theme} className="btn-ghost"
                     style={{ ...s.themeBtn, ...(i === 0 ? s.themeBtnActive : {}) }}>
-                    <div style={{ width: 20, height: 20, borderRadius: 5, background: ['#1e3a8a','#2563eb','#1d4ed8'][i], marginBottom: 6 }} />
+                    <div style={{ width: 18, height: 18, borderRadius: 4, background: ['#1e3a8a','#2563eb','#1d4ed8'][i], marginBottom: 5 }} />
                     {theme}
                   </button>
                 ))}
               </div>
             </Field>
-            <div style={{ marginTop: 20 }}>
-              <Toggle on={true}  onChange={() => {}} label="Compact table rows"            sub="Show more data with reduced row height" />
-              <Toggle on={false} onChange={() => {}} label="Show revenue in dashboard"     sub="Display financial metrics on the main dashboard" />
+            <div style={{ marginTop: 18 }}>
+              <Toggle on={true}  onChange={() => {}} label="Compact table rows"        sub="Show more data with reduced row height" />
+              <Toggle on={false} onChange={() => {}} label="Show revenue in dashboard" sub="Display financial metrics on the main dashboard" />
             </div>
           </div>
         </div>
@@ -232,8 +232,8 @@ export default function Settings() {
       <div style={s.saveBar}>
         {saved && (
           <div style={s.savedMsg}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e3a8a" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Changes saved successfully.
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Changes saved.
           </div>
         )}
         <div style={{ display: 'flex', gap: 10, marginLeft: 'auto' }}>
@@ -246,32 +246,32 @@ export default function Settings() {
 }
 
 const s = {
-  tabs:          { display: 'flex', gap: 2, borderBottom: '1px solid #bfdbfe', marginBottom: 24 },
-  tabBtn:        { padding: '10px 18px', background: 'none', border: 'none', fontSize: 14, fontWeight: 500, color: '#3b82f6', cursor: 'pointer', borderBottom: '2px solid transparent', marginBottom: -1 },
-  tabActive:     { color: '#000', fontWeight: 700, borderBottomColor: '#2563eb', background: 'none' },
-  section:       { background: '#fff', border: '1px solid #bfdbfe', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px rgba(37,99,235,0.08)' },
-  sHead:         { padding: '18px 24px', borderBottom: '1px solid #dbeafe' },
-  sTitle:        { fontSize: 15, fontWeight: 700, color: '#000' },
-  sSub:          { fontSize: 13, color: '#3b82f6', marginTop: 3 },
-  sBody:         { padding: '24px' },
-  profileAvatar: { width: 64, height: 64, borderRadius: '50%', background: '#2563eb', color: '#fff', fontSize: 22, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  grid2:         { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 },
-  field:         { display: 'flex', flexDirection: 'column', gap: 7 },
-  label:         { fontSize: 12, fontWeight: 700, color: '#1d4ed8', textTransform: 'uppercase', letterSpacing: '0.05em' },
-  hint:          { fontSize: 12, color: '#3b82f6', marginTop: 2 },
-  input:         { padding: '10px 14px', border: '1px solid #bfdbfe', borderRadius: 8, fontSize: 14, color: '#000', outline: 'none', background: '#fff', width: '100%' },
-  smallBtn:      { padding: '6px 14px', border: '1px solid #bfdbfe', background: '#fff', borderRadius: 7, fontSize: 13, fontWeight: 500, color: '#000', cursor: 'pointer' },
-  toggleRow:     { display: 'flex', alignItems: 'center', gap: 16, padding: '16px 0', borderBottom: '1px solid #eff6ff' },
-  toggleLabel:   { fontSize: 14, fontWeight: 600, color: '#000' },
-  toggleSub:     { fontSize: 13, color: '#3b82f6', marginTop: 3 },
-  track:         { width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', position: 'relative', flexShrink: 0 },
-  thumb:         { position: 'absolute', top: 3, width: 18, height: 18, borderRadius: '50%', background: '#fff', boxShadow: '0 1px 4px rgba(30,58,138,0.3)' },
-  sessRow:       { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: '1px solid #eff6ff' },
-  activeTag:     { display: 'inline-block', marginLeft: 8, fontSize: 11, fontWeight: 700, color: '#1e3a8a', background: '#dbeafe', padding: '2px 8px', borderRadius: 5 },
-  themeBtn:      { display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '12px 18px', border: '1px solid #bfdbfe', borderRadius: 9, background: '#fff', cursor: 'pointer', fontSize: 13, color: '#000', fontWeight: 500 },
-  themeBtnActive:{ border: '2px solid #2563eb', color: '#1e3a8a', fontWeight: 700 },
-  saveBar:       { display: 'flex', alignItems: 'center', marginTop: 28, paddingTop: 20, borderTop: '1px solid #bfdbfe' },
-  savedMsg:      { display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: '#1e3a8a', fontWeight: 600 },
-  cancelBtn:     { padding: '10px 20px', border: '1px solid #bfdbfe', background: '#fff', borderRadius: 8, fontSize: 14, fontWeight: 600, color: '#000', cursor: 'pointer' },
-  saveBtn:       { padding: '10px 24px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: 'pointer' },
+  tabs:          { display: 'flex', gap: 0, borderBottom: '1px solid #e5e7eb', marginBottom: 20 },
+  tabBtn:        { padding: '9px 16px', background: 'none', border: 'none', fontSize: 13, fontWeight: 500, color: '#888', cursor: 'pointer', borderBottom: '2px solid transparent', marginBottom: -1 },
+  tabActive:     { color: '#111', fontWeight: 700, borderBottomColor: '#111' },
+  section:       { background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, overflow: 'hidden' },
+  sHead:         { padding: '16px 22px', borderBottom: '1px solid #f3f4f6' },
+  sTitle:        { fontSize: 14, fontWeight: 700, color: '#111' },
+  sSub:          { fontSize: 12, color: '#aaa', marginTop: 2 },
+  sBody:         { padding: '22px' },
+  profileAvatar: { width: 56, height: 56, borderRadius: '50%', background: '#2563eb', color: '#fff', fontSize: 20, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  grid2:         { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 },
+  field:         { display: 'flex', flexDirection: 'column', gap: 6 },
+  label:         { fontSize: 11, fontWeight: 700, color: '#555', textTransform: 'uppercase', letterSpacing: '0.05em' },
+  hint:          { fontSize: 12, color: '#aaa', marginTop: 2 },
+  input:         { padding: '9px 13px', border: '1px solid #e5e7eb', borderRadius: 6, fontSize: 14, color: '#111', outline: 'none', background: '#fff', width: '100%' },
+  smallBtn:      { padding: '5px 12px', border: '1px solid #e5e7eb', background: '#fff', borderRadius: 5, fontSize: 13, fontWeight: 500, color: '#333', cursor: 'pointer' },
+  toggleRow:     { display: 'flex', alignItems: 'center', gap: 16, padding: '14px 0', borderBottom: '1px solid #f9fafb' },
+  toggleLabel:   { fontSize: 14, fontWeight: 600, color: '#111' },
+  toggleSub:     { fontSize: 12, color: '#aaa', marginTop: 2 },
+  track:         { width: 42, height: 22, borderRadius: 11, border: 'none', cursor: 'pointer', position: 'relative', flexShrink: 0 },
+  thumb:         { position: 'absolute', top: 2, width: 18, height: 18, borderRadius: '50%', background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' },
+  sessRow:       { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '13px 0', borderBottom: '1px solid #f9fafb' },
+  activeTag:     { display: 'inline-block', marginLeft: 8, fontSize: 11, fontWeight: 600, color: '#555', background: '#f3f4f6', padding: '2px 7px', borderRadius: 3 },
+  themeBtn:      { display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 16px', border: '1px solid #e5e7eb', borderRadius: 6, background: '#fff', cursor: 'pointer', fontSize: 12, color: '#333', fontWeight: 500 },
+  themeBtnActive:{ border: '2px solid #111', color: '#111', fontWeight: 700 },
+  saveBar:       { display: 'flex', alignItems: 'center', marginTop: 24, paddingTop: 18, borderTop: '1px solid #e5e7eb' },
+  savedMsg:      { display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, color: '#333', fontWeight: 600 },
+  cancelBtn:     { padding: '9px 18px', border: '1px solid #e5e7eb', background: '#fff', borderRadius: 6, fontSize: 13, fontWeight: 600, color: '#333', cursor: 'pointer' },
+  saveBtn:       { padding: '9px 20px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 700, cursor: 'pointer' },
 }
